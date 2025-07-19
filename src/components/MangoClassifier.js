@@ -51,13 +51,15 @@ const MangoClassifier = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!file) {
-      setError("Please select a image before predicting");
+      setError("Please select an image before predicting");
       return;
     }
 
     setLoading(true);
     setError("");
+    setResult(null); 
 
     const formData = new FormData();
     formData.append("file", file);
@@ -68,21 +70,35 @@ const MangoClassifier = () => {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-          timeout: 10000,
+          timeout: 15000,
         }
       );
-      const { predicted_class, confidence, annotated_image } = response.data;
 
-      setResult({
-        predicted_class,
-        confidence: parseFloat(confidence),
-        annotated_image,
-      });
+      // Kiểm tra nếu backend trả về lỗi trong body JSON
+      if (response.data.error) {
+        setError(response.data.error);
+      } else {
+        const { predicted_class, confidence, annotated_image } = response.data;
+
+        setResult({
+          predicted_class,
+          confidence: parseFloat(confidence),
+          annotated_image,
+        });
+      }
     } catch (err) {
-      setError(
-        "Could not connect to API or there was an error processing the image. Please try again."
-      );
-      console.error(err);
+      // Nếu lỗi mạng hoặc server trả về lỗi không phải JSON
+      if (err.code === "ECONNABORTED") {
+        setError("The request timed out. Please try again later.");
+      } else if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError(
+          "Could not connect to API or there was an error processing the image."
+        );
+      }
+
+      console.error("API Error:", err);
     } finally {
       setLoading(false);
     }
