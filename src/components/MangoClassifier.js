@@ -63,8 +63,16 @@ const MangoClassifier = () => {
     formData.append("file", file);
 
     try {
+      // const response = await axios.post(
+      //   "http://localhost:8000/predicted/",
+      //   formData,
+      //   {
+      //     headers: { "Content-Type": "multipart/form-data" },
+      //     timeout: 10000,
+      //   }
+      // );
       const response = await axios.post(
-        "http://localhost:8000/predicted/",
+        "https://mangovate-server.onrender.com/predicted/",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -306,7 +314,7 @@ const MangoClassifier = () => {
                     />
                   </div>
                   <p className="text-right text-sm font-semibold text-gray-700 mt-1">
-                    {(result.confidence).toFixed(1)}%
+                    {result.confidence.toFixed(1)}%
                   </p>
                 </div>
 
