@@ -63,21 +63,21 @@ const MangoClassifier = () => {
     formData.append("file", file);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/predict",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
       // const response = await axios.post(
-      //   "https://mangovate-server.onrender.com/api/predict",
+      //   "http://localhost:8080/api/predict",
       //   formData,
       //   {
       //     headers: { "Content-Type": "multipart/form-data" },
-      //     timeout: 10000, // Thời gian timeout là 10 giây (10000ms)
       //   }
       // );
+      const response = await axios.post(
+        "https://mangovate-server.onrender.com/api/predict",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          timeout: 10000, // Thời gian timeout là 10 giây (10000ms)
+        }
+      );
       setResult(response.data);
     } catch (err) {
       setError(
