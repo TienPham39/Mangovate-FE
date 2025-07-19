@@ -243,7 +243,7 @@ const MangoClassifier = () => {
 
             <button
               onClick={handleSubmit}
-              disabled={!file || loading}
+              disabled={loading}
               className={`w-full py-3 font-medium rounded-md text-white transition ${
                 loading
                   ? "bg-orange-300 cursor-not-allowed"
