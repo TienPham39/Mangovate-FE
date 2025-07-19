@@ -71,7 +71,6 @@ const MangoClassifier = () => {
           timeout: 10000,
         }
       );
-
       const { predicted_class, confidence, annotated_image } = response.data;
 
       setResult({
