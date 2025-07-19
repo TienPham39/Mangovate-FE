@@ -63,19 +63,12 @@ const MangoClassifier = () => {
     formData.append("file", file);
 
     try {
-      // const response = await axios.post(
-      //   "http://localhost:8080/api/predict",
-      //   formData,
-      //   {
-      //     headers: { "Content-Type": "multipart/form-data" },
-      //   }
-      // );
       const response = await axios.post(
-        "https://mangovate-server.onrender.com/api/predict",
+        "http://localhost:8000/predicted/",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-          timeout: 10000, // Thời gian timeout là 10 giây (10000ms)
+          timeout: 10000,
         }
       );
       setResult(response.data);
@@ -294,10 +287,10 @@ const MangoClassifier = () => {
                   )}
                   <div
                     className={`inline-block px-4 py-2 ${getClassColor(
-                      result.class
+                      result.predicted_class
                     )} text-white rounded-full font-medium text-lg`}
                   >
-                    {getClassText(result.class)}
+                    {getClassText(result.predicted_class)}
                   </div>
                 </div>
 
@@ -307,13 +300,13 @@ const MangoClassifier = () => {
                   <div className="w-full bg-gray-200 rounded-full h-3">
                     <div
                       className={`${getClassColor(
-                        result.class
+                        result.predicted_class
                       )} h-3 rounded-full transition-all`}
-                      style={{ width: `${result.confidence * 100}%` }}
+                      style={{ width: `${result.confidence}%` }}
                     />
                   </div>
                   <p className="text-right text-sm font-semibold text-gray-700 mt-1">
-                    {(result.confidence * 100).toFixed(1)}%
+                    {(result.confidence).toFixed(1)}%
                   </p>
                 </div>
 
@@ -330,7 +323,7 @@ const MangoClassifier = () => {
                         Recommended Action:
                       </h4>
                       <p className="text-sm text-gray-700 leading-relaxed">
-                        {getRecommendation(result.class)}
+                        {getRecommendation(result.predicted_class)}
                       </p>
                     </div>
                   </div>
