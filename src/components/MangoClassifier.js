@@ -1,6 +1,11 @@
 import { useState, useRef } from "react";
 import axios from "axios";
-import { Upload, ImageUp, CircleCheckBig, TriangleAlert } from "lucide-react";
+import {
+  Upload,
+  ImageUp,
+  CircleCheckBig,
+  TriangleAlert,
+} from "lucide-react";
 
 const MangoClassifier = () => {
   const [file, setFile] = useState(null);
@@ -59,7 +64,7 @@ const MangoClassifier = () => {
 
     setLoading(true);
     setError("");
-    setResult(null); 
+    setResult(null);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -74,20 +79,24 @@ const MangoClassifier = () => {
         }
       );
 
-      // Kiểm tra nếu backend trả về lỗi trong body JSON
       if (response.data.error) {
         setError(response.data.error);
       } else {
-        const { predicted_class, confidence, annotated_image } = response.data;
+        const {
+          predicted_class,
+          confidence,
+          annotated_image,
+          all_confidences,
+        } = response.data;
 
         setResult({
           predicted_class,
           confidence: parseFloat(confidence),
           annotated_image,
+          all_confidences,
         });
       }
     } catch (err) {
-      // Nếu lỗi mạng hoặc server trả về lỗi không phải JSON
       if (err.code === "ECONNABORTED") {
         setError("The request timed out. Please try again later.");
       } else if (err.response?.data?.error) {
@@ -97,7 +106,6 @@ const MangoClassifier = () => {
           "Could not connect to API or there was an error processing the image."
         );
       }
-
       console.error("API Error:", err);
     } finally {
       setLoading(false);
@@ -164,50 +172,15 @@ const MangoClassifier = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-6 mb-8">
-          <div className="relative">
-            {/* Background decoration */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-10">
-              <div className="w-32 h-32 bg-gradient-to-br from-green-400 to-yellow-400 rounded-full blur-3xl"></div>
-            </div>
-
-            {/* Main title */}
-            <div className="relative z-10 space-y-4">
-              <h1 className="mb-1 text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-green-600 via-yellow-600 to-orange-600 bg-clip-text text-transparent leading-tight antialiased">
-                Classifying Mango
-                <br />
-                <span className="text-3xl md:text-5xl">Maturity Stages</span>
-              </h1>
-
-              <div className="flex items-center justify-center gap-2 text-lg md:text-xl text-gray-600">
-                <span className="font-medium">
-                  Based on Physiological Features
-                </span>
-              </div>
-
-              {/* Feature badges */}
-              <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
-                <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-green-200 shadow-sm">
-                  <span className="text-sm font-medium text-green-700">
-                    🤖 AI Powered
-                  </span>
-                </div>
-                <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-yellow-200 shadow-sm">
-                  <span className="text-sm font-medium text-yellow-700">
-                    ⚡ Real-time
-                  </span>
-                </div>
-                <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-orange-200 shadow-sm">
-                  <span className="text-sm font-medium text-orange-700">
-                    🎯 High Accuracy
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <h1 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-green-600 via-yellow-600 to-orange-600 bg-clip-text text-transparent leading-tight antialiased">
+            Classifying Mango
+            <br />
+            <span className="text-3xl md:text-5xl">Maturity Stages</span>
+          </h1>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Upload Section */}
+          {/* Upload */}
           <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
             <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-800">
               <Upload /> Upload Mango Image
@@ -288,7 +261,7 @@ const MangoClassifier = () => {
             )}
           </div>
 
-          {/* Results Section */}
+          {/* Results */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-800 mb-4">
               <CircleCheckBig /> Predicted Results
@@ -298,7 +271,7 @@ const MangoClassifier = () => {
               <p className="text-center text-gray-500">Processing image...</p>
             ) : result ? (
               <div className="space-y-6">
-                {/* Classification */}
+                {/* Annotated Image */}
                 <div className="text-center space-y-3">
                   {result.annotated_image && (
                     <img
@@ -316,23 +289,32 @@ const MangoClassifier = () => {
                   </div>
                 </div>
 
-                {/* Confidence */}
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Confidence</p>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div
-                      className={`${getClassColor(
-                        result.predicted_class
-                      )} h-3 rounded-full transition-all`}
-                      style={{ width: `${result.confidence}%` }}
-                    />
-                  </div>
-                  <p className="text-right text-sm font-semibold text-gray-700 mt-1">
-                    {result.confidence.toFixed(1)}%
+                {/* All Class Probabilities */}
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600 mb-1 font-semibold">
+                    Class Probabilities:
                   </p>
+                  {Object.entries(result.all_confidences).map(
+                    ([label, value]) => (
+                      <div key={label}>
+                        <div className="flex justify-between mb-1 text-sm">
+                          <span>{getClassText(label)}</span>
+                          <span>{value.toFixed(1)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div
+                            className={`${getClassColor(
+                              label
+                            )} h-3 rounded-full transition-all`}
+                            style={{ width: `${value}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  )}
                 </div>
 
-                {/* Recommendation - Compact Design */}
+                {/* Recommendation */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border-l-4 border-blue-400 flex-1">
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
@@ -351,7 +333,7 @@ const MangoClassifier = () => {
                   </div>
                 </div>
 
-                {/* Action Button - Fixed at bottom */}
+                {/* Reset Button */}
                 <div className="pt-2">
                   <button
                     onClick={resetForm}
