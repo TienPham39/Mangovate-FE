@@ -52,7 +52,7 @@ const MangoClassifier = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
-      setError("Please select a photo before predicting");
+      setError("Please select a image before predicting");
       return;
     }
 
@@ -63,14 +63,6 @@ const MangoClassifier = () => {
     formData.append("file", file);
 
     try {
-      // const response = await axios.post(
-      //   "http://localhost:8000/predicted/",
-      //   formData,
-      //   {
-      //     headers: { "Content-Type": "multipart/form-data" },
-      //     timeout: 10000,
-      //   }
-      // );
       const response = await axios.post(
         "https://mangovate-server.onrender.com/predicted/",
         formData,
@@ -79,7 +71,14 @@ const MangoClassifier = () => {
           timeout: 10000,
         }
       );
-      setResult(response.data);
+
+      const { predicted_class, confidence, annotated_image } = response.data;
+
+      setResult({
+        predicted_class,
+        confidence: parseFloat(confidence),
+        annotated_image,
+      });
     } catch (err) {
       setError(
         "Could not connect to API or there was an error processing the image. Please try again."
