@@ -70,7 +70,7 @@ const MangoClassifier = () => {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-          timeout: 15000,
+          timeout: 30000,
         }
       );
 
